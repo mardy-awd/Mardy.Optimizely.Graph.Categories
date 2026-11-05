@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <Version>0.1.0-poc</Version>
+    <Description>Exposes legacy PageData.Category assignments as queryable computed fields in Optimizely Graph.</Description>
+    <!-- Lowest supported SDK. Override with -p:GraphCmsVersion=13.5.0 to verify against a newer one. -->
+    <GraphCmsVersion Condition="'$(GraphCmsVersion)' == ''">13.4.0</GraphCmsVersion>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Optimizely.Graph.Cms" Version="[$(GraphCmsVersion), 14.0.0)" />
+  </ItemGroup>
+
+</Project>

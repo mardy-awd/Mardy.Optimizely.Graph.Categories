@@ -1,0 +1,34 @@
+# Build output
+[Bb]in/
+[Oo]bj/
+[Aa]rtifacts/
+
+# CMS package files copied into project folders during build
+**/modules/_protected/
+
+# NuGet packages
+*.nupkg
+*.snupkg
+
+# Test results and coverage
+[Tt]est[Rr]esults/
+coverage/
+*.coverage
+*.coveragexml
+*.trx
+
+# Visual Studio
+.vs/
+*.user
+*.suo
+
+# JetBrains Rider
+.idea/
+*.DotSettings.user
+
+# VS Code (local settings only)
+.vscode/
+
+# OS
+.DS_Store
+Thumbs.db
