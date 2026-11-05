@@ -5,11 +5,31 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <Version>0.1.0-poc</Version>
-    <Description>Exposes legacy PageData.Category assignments as queryable computed fields in Optimizely Graph.</Description>
     <!-- Lowest supported SDK. Override with -p:GraphCmsVersion=13.5.0 to verify against a newer one. -->
     <GraphCmsVersion Condition="'$(GraphCmsVersion)' == ''">13.4.0</GraphCmsVersion>
   </PropertyGroup>
+
+  <!-- NuGet package metadata -->
+  <PropertyGroup>
+    <PackageId>Mardy.Optimizely.Graph.Categories</PackageId>
+    <Version>0.1.0-poc</Version>
+    <Authors>mardy-awd</Authors>
+    <Copyright>Copyright (c) 2026 mardy-awd</Copyright>
+    <Description>Exposes legacy PageData.Category assignments as queryable computed fields in Optimizely Graph.</Description>
+    <PackageTags>optimizely;episerver;cms;cms13;graph;categories;addon</PackageTags>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageProjectUrl>https://github.com/mardy-awd/Mardy.Optimizely.Graph.Categories</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/mardy-awd/Mardy.Optimizely.Graph.Categories.git</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="..\..\README.md" Pack="true" PackagePath="\" Visible="false" />
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Optimizely.Graph.Cms" Version="[$(GraphCmsVersion), 14.0.0)" />

@@ -1,0 +1,93 @@
+name: Build and Package
+
+on:
+  push:
+    branches: [main, 'feature/**']
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Setup .NET 10
+        uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Restore dependencies
+        run: dotnet restore
+
+      - name: Build
+        run: dotnet build -c Release --no-restore -p:ContinuousIntegrationBuild=true
+
+      # Restore resolves the lowest version in the range, so this tests the supported floor.
+      - name: Test (lowest supported SDK)
+        run: dotnet test -c Release --no-build
+
+      - name: Pack NuGet
+        run: dotnet pack src/Mardy.Optimizely.Graph.Categories/Mardy.Optimizely.Graph.Categories.csproj -c Release --no-build -o ./artifacts
+
+      - name: Validate NuGet package
+        shell: pwsh
+        run: |
+          Add-Type -AssemblyName System.IO.Compression.FileSystem
+
+          $package = Get-ChildItem ./artifacts/*.nupkg | Select-Object -First 1
+
+          if (-not $package) {
+            throw "NuGet package was not generated."
+          }
+
+          if (-not (Get-ChildItem ./artifacts/*.snupkg)) {
+            throw "Symbols package was not generated."
+          }
+
+          $archive = [System.IO.Compression.ZipFile]::OpenRead($package.FullName)
+
+          try {
+            $entries = $archive.Entries.FullName
+
+            $required = @(
+              "README.md",
+              "lib/net10.0/Mardy.Optimizely.Graph.Categories.dll",
+              "lib/net10.0/Mardy.Optimizely.Graph.Categories.xml"
+            )
+
+            foreach ($path in $required) {
+              if ($path -notin $entries) {
+                throw "Missing NuGet package entry: $path"
+              }
+            }
+
+            # CMS package files are copied into the project folder during build.
+            if ($entries -match 'modules/_protected') {
+              throw "CMS module files were packed by mistake."
+            }
+
+            Write-Host "NuGet package structure validated successfully."
+          }
+          finally {
+            $archive.Dispose()
+          }
+
+      - name: Upload NuGet artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: graph-categories-nuget
+          path: |
+            ./artifacts/*.nupkg
+            ./artifacts/*.snupkg
+
+      # The scanner rule is copied from the CMS, so also check the newest tested SDK.
+      - name: Test (Graph SDK 13.5.0)
+        run: dotnet test -c Release -p:GraphCmsVersion=13.5.0
