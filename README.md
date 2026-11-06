@@ -11,14 +11,26 @@ It adds two fields to every concrete page type:
 
 The add-on uses only public CMS and Graph APIs. It has no custom mappers, reflection against internal types or manual schema changes, and the fields survive a full sync.
 
-> **Status:** proof of concept. It isn't on NuGet yet, so reference the project from source for now.
-
 ## Requirements
 
 - .NET 10
 - CMS 13 with `Optimizely.Graph.Cms` 13.4.0 or later, below 14.0.0
 
-Live testing has been on 13.5.0. At 13.4.0, only the unit tests have been run.
+Tested on live sites running CMS and Graph 13.4.0 and 13.5.0.
+
+## Installation
+
+The package is on the [Optimizely NuGet feed](https://nuget.optimizely.com/). Add the feed to your `nuget.config` if it isn't there already:
+
+```xml
+<add key="optimizely" value="https://api.nuget.optimizely.com/v3/index.json" />
+```
+
+Then install the package:
+
+```powershell
+dotnet add package Mardy.Optimizely.Graph.Categories
+```
 
 ## Setup
 
@@ -32,6 +44,36 @@ Live testing has been on 13.5.0. At 13.4.0, only the unit tests have been run.
    ```
 
 2. Start the site, then run **Optimizely Graph Full Synchronization** under **Settings > Scheduled Jobs**. This adds the fields to the schema and fills in values for existing content.
+
+## Testing the add-on
+
+You need a CMS 13 site connected to a Graph source you can write to. These steps change content and run full syncs, so don't use a production source. Replace `StandardPage` with one of your page types.
+
+1. Complete the setup above, and check that the site starts without errors.
+2. Under **Settings > Categories**, create a category named `QaNews`.
+3. Assign `QaNews` to a page and publish it, then run **Optimizely Graph Full Synchronization**.
+4. Run this query in GraphiQL or any GraphQL client:
+
+   ```graphql
+   {
+     match: StandardPage(where: { LegacyCategoryNames: { in: ["QaNews"] } }) {
+       total
+       items { _metadata { displayName } LegacyCategoryIds LegacyCategoryNames }
+     }
+     noMatch: StandardPage(where: { LegacyCategoryNames: { in: ["NoSuchCategory"] } }) { total }
+   }
+   ```
+
+5. Run the full sync again, then repeat the query.
+6. Rename the category, then run the full sync and repeat the query with the new name.
+
+| After | Expected result |
+|---|---|
+| Step 4 | `match` returns your page with the category's ID and name, and `noMatch` has a `total` of 0 |
+| Step 5 | The same result as step 4 |
+| Step 6 | The new name matches your page, and the old name returns 0 |
+
+The fields don't exist on `_Page`, so querying them through `_Page` returns an error by design. See [Limitations](#limitations).
 
 ## Querying
 

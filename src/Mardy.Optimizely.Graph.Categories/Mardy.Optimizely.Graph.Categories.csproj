@@ -12,7 +12,7 @@
   <!-- NuGet package metadata -->
   <PropertyGroup>
     <PackageId>Mardy.Optimizely.Graph.Categories</PackageId>
-    <Version>0.1.0-poc</Version>
+    <Version>1.0.0</Version>
     <Authors>mardy-awd</Authors>
     <Copyright>Copyright (c) 2026 mardy-awd</Copyright>
     <Description>Exposes legacy PageData.Category assignments as queryable computed fields in Optimizely Graph.</Description>
